@@ -1,5 +1,6 @@
 # TensorFlow Inference Serving with Docker and S3
 
+The resulting container image from this experiment is consumed by <https://github.com/mylesagray/anpr-knative>
 ## Pulling models and configs directly from S3 at runtime (slow startup, but dynamic)
 
 ### Export Amazon Creds
@@ -161,44 +162,7 @@ Service 'tf-inference-server' created to latest revision 'tf-inference-server-00
 http://tf-inference-server.default.10.198.53.135.sslip.io
 ```
 
-#### Half plus two
-
-```json
-$ curl -s -X POST -d '{"instances": [1.0, 2.0, 5.0]}' http://tf-inference-server.default.10.198.53.135.sslip.io/v1/models/half_plus_two:predict | jq
-{
-  "predictions": [
-    2.5,
-    3,
-    4.5
-  ]
-}
-```
-
-#### Resnet
-
-Cat:
-
-```sh
-# Encode the cat image in base64 for the model
-INPUT_IMG=$(cat test/cat.jpg| base64)
-# Query the inference server with the cat image and see what it predicts
-curl -s -X POST -d '{"instances": [{"b64": "'$(echo $INPUT_IMG)'"}]}' http://tf-inference-server.default.10.198.53.135.sslip.io/v1/models/resnet:predict | jq '.predictions[0].classes'
-
-# If the output is `286` then we've been successful in mapping the image as a cat: https://gist.github.com/yrevar/942d3a0ac09ec9e5eb3a
-```
-
-Dog:
-
-```sh
-# Encode the dog image in base64 for the model
-INPUT_IMG=$(cat test/dog.jpg| base64)
-# Query the inference server with the cat image and see what it predicts
-curl -s -X POST -d '{"instances": [{"b64": "'$(echo $INPUT_IMG)'"}]}' http://tf-inference-server.default.10.198.53.135.sslip.io/v1/models/resnet:predict | jq '.predictions[0].classes'
-
-# If the output is `209` then we've been successful in mapping the image as a golden retriever: https://gist.github.com/yrevar/942d3a0ac09ec9e5eb3a
-```
-
-#### ANPR
+#### ANPR Test
 
 Car with plate:
 
