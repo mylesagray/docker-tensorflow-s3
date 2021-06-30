@@ -1,6 +1,8 @@
 # TensorFlow Inference Serving with Docker and S3
 
-The resulting container image from this experiment is consumed by <https://github.com/mylesagray/anpr-knative>
+The resulting container image from this experiment is consumed by <https://github.com/mylesagray/anpr-knative>.
+
+The Automatic Number Plate Recognition (ANPR) model this container is packaged with is based on <https://github.com/mylesagray/tensorflow-anpr>.
 ## Pulling models and configs directly from S3 at runtime (slow startup, but dynamic)
 
 ### Export Amazon Creds
