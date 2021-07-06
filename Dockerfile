@@ -1,4 +1,4 @@
-FROM tensorflow/serving as serving_base
+FROM mylesagray/tensorflow-serving:r1.15-cpu-opt as serving_base
 
 # Copy the built anpr model
 COPY models/anpr/ /models/anpr/

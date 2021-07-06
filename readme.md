@@ -121,7 +121,7 @@ $ python client/app/predict_images_client.py -s http://localhost:8501/v1/models/
 ## Build dedicated docker container with baked-in ANPR image (fast start, but static)
 
 ```sh
-docker build . -t harbor-repo.vmware.com/vspheretmm/anpr-serving:latest -t anpr-serving:latest
+docker build . -t harbor-repo.vmware.com/vspheretmm/anpr-serving:latest quay.io/mylesagray/anpr-serving:latest -t anpr-serving:latest
 
 $ docker image list
 REPOSITORY                                       TAG       IMAGE ID       CREATED          SIZE
@@ -133,14 +133,20 @@ Push:
 
 ```sh
 docker push harbor-repo.vmware.com/vspheretmm/anpr-serving
+docker push quay.io/mylesagray/anpr-serving
 ```
 
 Run:
 
 ```sh
-docker run -d -p 8500:8500 -p 8501:8501 anpr-serving \
+docker run -d -p 8500:8500 -p 8501:8501 \
+  --env TF_CPP_VMODULE=http_server=3,prediction_service_impl=3 \
+  anpr-serving \
   --model_config_file=/configs/models-local.config \
-  --monitoring_config_file=/configs/monitoring_config.txt
+  --monitoring_config_file=/configs/monitoring_config.txt \
+  --rest_api_timeout_in_ms=0 \
+  --tensorflow_intra_op_parallelism=4 \
+  --tensorflow_inter_op_parallelism=4
 ```
 
 ### Run on KNative
@@ -180,3 +186,21 @@ $ python client/app/predict_images_client.py -s http://tf-inference-server.defau
     Found plate:  35nn72
     Found plate:  6y0m172
 ```
+
+## (Optional) Build TF Serving from scratch including AVX2 and SSE instruction sets
+
+To get a little more performance when running on CPU you can optionally compile and build the tensorflow serving container to include instructions sets that are usually left out for compatibility reasons.
+
+This is a very resource intensive operation and takes upwards of an hour (ensure your Docker instance has an adequate amount of resource allocated for the build to actually complete - it will fail with a jvm error if it doesn't - mine has 8x CPUs and 14GB RAM allocated).
+
+```sh
+./build-tf-serving.sh mylesagray r1.15-cpu-opt r1.15
+```
+
+The command will clone the `r1.15` branch of tensorflow serving into the parent repo, build the devel container and then build a serving container based on that - everything is compiled with the following options:
+
+```sh
+TF_SERVING_BUILD_OPTIONS="--copt=-mavx --copt=-mavx2 --copt=-mfma --copt=-msse4.1 --copt=-msse4.2"
+```
+
+The final output is a tensorflow serving container with all CPU optimisations in place and the ANPR model included.
