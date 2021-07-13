@@ -1,5 +1,6 @@
 #!/bin/bash
-# Usage: ./build-tf-serving.sh mylesagray r1.15-cpu-opt r1.15
+#### Usage: ./build-tf-serving.sh mylesagray r1.15-cpu-opt r1.15
+# Refs:
 # https://mux.com/blog/tuning-performance-of-tensorflow-serving-pipeline/
 # https://github.com/tensorflow/serving/blob/master/tensorflow_serving/g3doc/setup.md#optimized-build
 
